@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知意 API · 免费接口平台</title>
+<meta name="description" content="知意 API：免费、免 key、开箱即用的接口平台，文案 / 工具 / 资讯生活共 30+ 个接口。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="logo">知意 API</span>
+    <span>
+      <a class="link" href="#list">接口列表</a>
+      <a class="link" href="/api/list" target="_blank">JSON 列表</a>
+    </span>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>知意 API · 免费接口平台</h1>
+  <p>免费 · 免 Key · 开箱即用 —— 文案、工具、资讯生活，一行请求就能用</p>
+  <div class="stats">
+    <span class="stat"><b id="statTotal">-</b>个接口</span>
+    <span class="stat"><b id="statCat">-</b>个分类</span>
+    <span class="stat"><b>100%</b>免费开放</span>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="搜索接口，如：天气 / 二维码 / 热搜 …">
+  </div>
+</header>
+
+<main class="container" id="list">
+  <div id="sections"></div>
+  <div class="empty" id="empty">没有找到匹配的接口，换个关键词试试</div>
+</main>
+
+<footer>
+  知意 API · 基于 Node.js + Express · 接口统一返回 { code, msg, data } · MIT 开源<br>
+  本站接口仅供学习交流，请勿滥用
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

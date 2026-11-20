@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>接口文档 · 知意 API</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="logo">知意 API</span>
+    <span><a class="link" href="index.html">← 返回首页</a></span>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="doc-box" id="box">
+    <h1 id="apiName">加载中…</h1>
+    <p class="desc" id="apiDesc"></p>
+
+    <div class="kv"><span class="k">请求地址</span><code class="url" id="apiUrl"></code></div>
+    <div class="kv"><span class="k">请求方式</span><span id="apiMethod"></span></div>
+    <div class="kv"><span class="k">返回格式</span><span>JSON（统一 { code, msg, data }）</span></div>
+
+    <h2 class="sec">请求参数</h2>
+    <div id="paramWrap"></div>
+
+    <h2 class="sec">返回示例</h2>
+    <pre id="example"></pre>
+
+    <h2 class="sec">在线测试</h2>
+    <div class="test-form" id="testForm"></div>
+    <button class="btn" id="runBtn">发送请求</button>
+    <pre id="testResult"></pre>
+
+    <a class="back" href="index.html">← 返回接口列表</a>
+  </div>
+</main>
+
+<footer>知意 API · MIT 开源</footer>
+
+<script>
+const id = new URLSearchParams(location.search).get('id');
+let api = null;
+
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+async function load() {
+  const res = await fetch('/api/list');
+  const json = await res.json();
+  api = json.data.list.find((a) => a.id === id);
+  if (!api) {
+    document.getElementById('apiName').textContent = '接口不存在';
+    document.getElementById('apiDesc').textContent = '请从首页选择接口进入文档页。';
+    return;
+  }
+  document.title = `${api.name} · 知意 API`;
+  document.getElementById('apiName').textContent = api.name;
+  document.getElementById('apiDesc').textContent = api.desc;
+  document.getElementById('apiUrl').textContent = location.origin + api.path;
+  document.getElementById('apiMethod').innerHTML = `<span class="method" style="font-size:12px">${esc(api.method)}</span>`;
+
+  const wrap = document.getElementById('paramWrap');
+  if (!api.params.length) {
+    wrap.innerHTML = '<p style="color:var(--muted);font-size:14px">无参数，直接请求即可</p>';
+  } else {
+    wrap.innerHTML = `<table><tr><th>参数名</th><th>类型</th><th>必填</th><th>说明</th><th>示例</th></tr>${
+      api.params.map((p) => `<tr><td><code>${esc(p.name)}</code></td><td>${esc(p.type)}</td><td>${p.required ? '<span class="req">是</span>' : '<span class="opt">否</span>'}</td><td>${esc(p.desc)}</td><td><code>${esc(p.example ?? '')}</code></td></tr>`).join('')
+    }</table>`;
+  }
+
+  document.getElementById('example').textContent =
+    typeof api.exampleResponse === 'string' ? api.exampleResponse : JSON.stringify(api.exampleResponse, null, 2);
+
+  const form = document.getElementById('testForm');
+  form.innerHTML = api.params.map((p) =>
+    `<label>${esc(p.name)}${p.required ? ' *' : ''}<input name="${esc(p.name)}" placeholder="${esc(p.example ?? '')}"></label>`).join('');
+}
+
+document.getElementById('runBtn').addEventListener('click', async () => {
+  if (!api) return;
+  const btn = document.getElementById('runBtn');
+  const out = document.getElementById('testResult');
+  const qs = new URLSearchParams();
+  document.querySelectorAll('#testForm input').forEach((i) => { if (i.value !== '') qs.set(i.name, i.value); });
+  const url = api.path + (qs.toString() ? '?' + qs.toString() : '');
+
+  // 图片类接口（二维码 / 随机图片）直接新开页面展示
+  if (api.id === 'qrcode' || api.id === 'image-random') {
+    window.open(url, '_blank');
+    out.style.display = 'block';
+    out.textContent = '该接口返回图片/跳转，已在新标签页打开：' + location.origin + url;
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '请求中…';
+  out.style.display = 'block';
+  out.textContent = '请求中…';
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    try { out.textContent = JSON.stringify(JSON.parse(text), null, 2); }
+    catch { out.textContent = text; }
+  } catch (e) {
+    out.textContent = '请求失败：' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '发送请求';
+  }
+});
+
+load();
+</script>
+</body>
+</html>

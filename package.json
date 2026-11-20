@@ -1,0 +1,1 @@
+{"author":"知意","dependencies":{"express":"^5.3.0","qrcode":"^1.5.4"},"description":"知意 API —— 免费接口平台：文案、工具、资讯生活共 30+ 个开箱即用的 JSON 接口","keywords":["api","free-api","express"],"license":"MIT","main":"server.js","name":"zhiyi-api","scripts":{"start":"node server.js"},"version":"1.0.0"}
